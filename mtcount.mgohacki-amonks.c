@@ -3,6 +3,21 @@
 //
 
 #include <stdio.h>
+#define NUMVALS (1024*1024)
+#define NUMTHREADS 4
+
+typedef struct {
+    int startIndex; // start index at which to start looking
+    int endIndex; // end index at which to stop looking
+    float threshold; // threshold value
+    int count; // result: #values that are greater than threshold
+} CountInfo;
+
+float gvals[NUMVALS];
+
+void *doCount(void *){
+
+}
 
 int prand() {
     static int p = 1;
