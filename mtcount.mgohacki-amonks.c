@@ -8,7 +8,8 @@
 
 #define NUMTHREADS 4
 #define NUMVALS (1024*1024)
-
+#define NUMVALS (1024*1024)
+#define NUMTHREADS 4
 
 typedef struct {
     int startIndex; // start index at which to start looking
@@ -16,6 +17,13 @@ typedef struct {
     float threshold; // threshold value
     int count; // result: #values that are greater than threshold
 } CountInfo;
+
+float gvals[NUMVALS];
+
+void *doCount(void *){
+
+}
+
 int prand() {
     static int p = 1;
     const int a = 105491;
