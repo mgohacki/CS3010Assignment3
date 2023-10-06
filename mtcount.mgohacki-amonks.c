@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #define NUMVALS (1024*1024)
-#define NUMTHREADS 1
+#define NUMTHREADS 8
 
 typedef struct {
     int startIndex; // start index at which to start looking
@@ -72,10 +72,10 @@ int main() {
     for (int i = 0; i < NUMTHREADS; i++) {
         info[i].startIndex = i * chunkSize;
         if (i == NUMTHREADS - 1){
-            info[i].endIndex =  NUMVALS;
+            info[i].endIndex = NUMVALS;
         }
         else{
-            (i + 1) * chunkSize - 1;
+            info[i].endIndex = (i + 1) * chunkSize;
         }
         info[i].threshold = threshold;
         info[i].count = 0;
