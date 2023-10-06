@@ -18,14 +18,18 @@ typedef struct {
 float gvals[NUMVALS];
 
 void *doCount(void * param){
+    // Allocate space for CountInfo struct
     CountInfo *data;
     int count = 0;
+    // Cast param to CountInfo pointer
     data = (CountInfo *) param;
+    // Check all values in thread range if bigger than threshold
     for(int i = data->startIndex; i < data->endIndex;i++){
         if(gvals[i] > data->threshold){
             count++;
         }
     }
+    // Set CountInfo count to final count
     data->count = count;
     pthread_exit(NULL);
 }
