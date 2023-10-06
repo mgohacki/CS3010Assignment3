@@ -1,10 +1,9 @@
 //
-// Created by Miro Gohacki on 10/4/23.
+// Created by Miro Gohacki and Adrien Monks on 10/4/23.
 //
 
 #include <stdio.h>
 #include <pthread.h>
-#include <stdlib.h>
 
 #define NUMVALS (1024*1024)
 #define NUMTHREADS 8
@@ -23,7 +22,7 @@ void *doCount(void * param){
     int count = 0;
     data = (CountInfo *) param;
     for(int i = data->startIndex; i < data->endIndex;i++){
-        if(gvals[i]>data->threshold){
+        if(gvals[i] > data->threshold){
             count++;
         }
     }
@@ -47,7 +46,7 @@ int prand() {
 //---------------------------------------------------------------------------
 
 int main() {
-    // Initialize the global buffer with pseudo-random numbers
+    // Initialize buffer with random numbers
     int i1, i2;
     float f1, f2;
     for (int i = 0; i < NUMVALS; i++) {
@@ -58,47 +57,49 @@ int main() {
         gvals[i] = f1 / (1.0 + f2);
     }
 
-    // Set the threshold value
+    // Set threshold value
     float threshold = 0.5;
 
-    // Create an array of CountInfo structures
+    // Create array of CountInfo structs
     CountInfo info[NUMTHREADS];
 
-    // Create an array of pthread_t variables
-    pthread_t threads[NUMTHREADS];
-
-    // Calculate the range for each thread
+    // Calculate range of each thread
     int chunkSize = NUMVALS / NUMTHREADS;
     for (int i = 0; i < NUMTHREADS; i++) {
         info[i].startIndex = i * chunkSize;
+
         if (i == NUMTHREADS - 1){
             info[i].endIndex = NUMVALS;
         }
         else{
             info[i].endIndex = (i + 1) * chunkSize;
         }
+
         info[i].threshold = threshold;
         info[i].count = 0;
     }
 
-    // Create threads
+    // Create array of pthread_t vars
+    pthread_t threads[NUMTHREADS];
+
+    // Create and run threads
     for (int i = 0; i < NUMTHREADS; i++) {
         pthread_create(&threads[i], NULL, doCount, &info[i]);
     }
 
-    // Wait for threads to complete
+    // Join all threads
     for (int i = 0; i < NUMTHREADS; i++) {
         pthread_join(threads[i], NULL);
     }
 
-    // Calculate the total count
+    // Calculate total
     int totalCount = 0;
     for (int i = 0; i < NUMTHREADS; i++) {
         totalCount += info[i].count;
     }
 
-    // Print the total count
-    printf("Total count of values greater than %.2f: %d\n", threshold, totalCount);
+    // Print total
+    printf("Total values greater than %.2f: %d\n", threshold, totalCount);
 
     return 0;
 }
