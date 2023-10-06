@@ -3,4 +3,4 @@ project(CS3010Assignment3 C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(CS3010Assignment3 pthreads-example-simpler.c mtcount.mgohacki-amonks.h mtcount.mgohacki-amonks.c)
+add_executable(CS3010Assignment3 pthreads-example-simpler.c mtcount.mgohacki-amonks.c)
