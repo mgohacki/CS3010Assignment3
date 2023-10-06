@@ -8,8 +8,6 @@
 
 #define NUMTHREADS 4
 #define NUMVALS (1024*1024)
-#define NUMVALS (1024*1024)
-#define NUMTHREADS 4
 
 typedef struct {
     int startIndex; // start index at which to start looking
@@ -78,8 +76,14 @@ int main() {
     int i, pos, chunkSize;
 
     // initialize the array with random integers in the range 0..NUMVALS
+    int i1, i2;
+    float f1, f2;
     for (i=0; i<NUMVALS; ++i) {
-        A[i] = (int) NUMVALS * drand48();
+        i1 = prand(100);
+        i2 = prand(100);
+        f1 = i1 / 100.0;
+        f2 = i2 / 100.0;
+        gvals[i] = f1 / (1.0 + f2);
     }
 
     // set up bounds for the threads
