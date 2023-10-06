@@ -6,8 +6,8 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-#define NUMTHREADS 4
 #define NUMVALS (1024*1024)
+#define NUMTHREADS 1
 
 typedef struct {
     int startIndex; // start index at which to start looking
@@ -18,8 +18,16 @@ typedef struct {
 
 float gvals[NUMVALS];
 
-void *doCount(void *){
-
+void *doCount(void * param){
+    CountInfo *data;
+    int count = 0;
+    data = (CountInfo *) param;
+    for(int i = data->startIndex; i < data->endIndex;i++){
+        if(gvals[i]>data->threshold){
+            count++;
+        }
+    }
+    printf("%d",count);
 }
 
 int prand() {
@@ -35,7 +43,6 @@ int prand() {
     return val;
 }
 
-void *runner(void *param);
 
 typedef struct {
     int lowVal;
@@ -43,34 +50,12 @@ typedef struct {
     int maxVal;
 } ThreadInfo;
 
-int A[NUMVALS];
 
 //---------------------------------------------------------------------------
-
-void *runner(void *param) {
-    ThreadInfo *data;
-    int i, maxVal;
-
-    data = (ThreadInfo *) param;
-    printf("I am runner; will do max for the range %d to %d\n",
-           data->lowVal, data->highVal);
-
-    maxVal = A[data->lowVal];
-
-    for (i=data->lowVal; i<=data->highVal; ++i) {
-        if (A[i] > maxVal)
-            maxVal = A[i];
-    }
-
-    data->maxVal = maxVal;
-    printf("my max is %d\n", data->maxVal);
-    pthread_exit(NULL);
-} // runner()
-
 //---------------------------------------------------------------------------
 
 int main() {
-    ThreadInfo tdata[NUMTHREADS]; // holds data we want to give to each thread
+    CountInfo tdata[NUMTHREADS]; // holds data we want to give to each thread
     pthread_t tids[NUMTHREADS];    // thread identifier for child thread #1
     int maxVal;
     int i, pos, chunkSize;
@@ -103,7 +88,7 @@ int main() {
 
     // create child threads
     for (i=0; i<NUMTHREADS; ++i)
-        pthread_create(&tids[i], NULL, runner, &tdata[i]);
+        pthread_create(&tids[i], NULL, doCount, &tdata[i]);
 
     // wait for the child threads to terminate
     for (i=0; i<NUMTHREADS; ++i)
