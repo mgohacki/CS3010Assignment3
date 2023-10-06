@@ -71,7 +71,12 @@ int main() {
     int chunkSize = NUMVALS / NUMTHREADS;
     for (int i = 0; i < NUMTHREADS; i++) {
         info[i].startIndex = i * chunkSize;
-        info[i].endIndex = (i == NUMTHREADS - 1) ? NUMVALS : (i + 1) * chunkSize -1;
+        if (i == NUMTHREADS - 1){
+            info[i].endIndex =  NUMVALS;
+        }
+        else{
+            (i + 1) * chunkSize - 1;
+        }
         info[i].threshold = threshold;
         info[i].count = 0;
     }
