@@ -37,16 +37,6 @@ int prand() {
     return val;
 }
 
-//-------------------------------
-// jdh CS201 Spring 2023
-// simple example of pthreads
-//-------------------------------
-
-
-#include <stdio.h>
-
-
-
 void *runner(void *param);
 
 typedef struct {
