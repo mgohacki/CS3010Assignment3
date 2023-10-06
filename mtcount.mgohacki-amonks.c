@@ -27,7 +27,8 @@ void *doCount(void * param){
             count++;
         }
     }
-    printf("%d",count);
+    data->count = count;
+    pthread_exit(NULL);
 }
 
 int prand() {
@@ -55,52 +56,53 @@ typedef struct {
 //---------------------------------------------------------------------------
 
 int main() {
-    CountInfo tdata[NUMTHREADS]; // holds data we want to give to each thread
-    pthread_t tids[NUMTHREADS];    // thread identifier for child thread #1
-    int maxVal;
-    int i, pos, chunkSize;
-
-    // initialize the array with random integers in the range 0..NUMVALS
+    // Initialize the global buffer with pseudo-random numbers
     int i1, i2;
     float f1, f2;
-    for (i=0; i<NUMVALS; ++i) {
+    for (int i = 0; i < NUMVALS; i++) {
         i1 = prand(100);
         i2 = prand(100);
-        f1 = i1 / 100.0;
-        f2 = i2 / 100.0;
+        f1 = (float)i1 / 100.0;
+        f2 = (float)i2 / 100.0;
         gvals[i] = f1 / (1.0 + f2);
     }
 
-    // set up bounds for the threads
-    chunkSize = NUMVALS / NUMTHREADS;
-    pos = 0;
-    for (i=0; i<NUMTHREADS; ++i) {
-        tdata[i].lowVal = pos;
-        tdata[i].highVal = tdata[i].lowVal + chunkSize;
-        pos = pos + chunkSize + 1;
+    // Set the threshold value
+    float threshold = 0.5;
+
+    // Create an array of CountInfo structures
+    CountInfo info[NUMTHREADS];
+
+    // Create an array of pthread_t variables
+    pthread_t threads[NUMTHREADS];
+
+    // Calculate the range for each thread
+    int chunkSize = NUMVALS / NUMTHREADS;
+    for (int i = 0; i < NUMTHREADS; i++) {
+        info[i].startIndex = i * chunkSize;
+        info[i].endIndex = (i == NUMTHREADS - 1) ? NUMVALS - 1 : (i + 1) * chunkSize - 1;
+        info[i].threshold = threshold;
+        info[i].count = 0;
     }
 
-    // adjust last region if necessary
-    if (tdata[NUMTHREADS-1].highVal < NUMVALS-1)
-        tdata[NUMTHREADS-1].highVal = NUMVALS - 1;
-    else if (tdata[NUMTHREADS-1].highVal > NUMVALS-1)
-        tdata[NUMTHREADS-1].highVal = NUMVALS - 1;
-
-    // create child threads
-    for (i=0; i<NUMTHREADS; ++i)
-        pthread_create(&tids[i], NULL, doCount, &tdata[i]);
-
-    // wait for the child threads to terminate
-    for (i=0; i<NUMTHREADS; ++i)
-        pthread_join(tids[i], NULL);
-
-    // gather data from the individual results
-    maxVal = tdata[0].maxVal;
-    for (i=1; i<NUMTHREADS; ++i) {
-        if (tdata[i].maxVal > maxVal)
-            maxVal = tdata[i].maxVal;
+    // Create threads
+    for (int i = 0; i < NUMTHREADS; i++) {
+        pthread_create(&threads[i], NULL, doCount, &info[i]);
     }
 
-    printf("overall max is %d\n", maxVal);
+    // Wait for threads to complete
+    for (int i = 0; i < NUMTHREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    // Calculate the total count
+    int totalCount = 0;
+    for (int i = 0; i < NUMTHREADS; i++) {
+        totalCount += info[i].count;
+    }
+
+    // Print the total count
+    printf("Total count of values greater than %.2f: %d\n", threshold, totalCount);
+
     return 0;
-} // main()
+}
